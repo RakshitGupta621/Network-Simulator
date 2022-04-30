@@ -73,14 +73,10 @@ void settingMacAddress()
 {
     ll numFreq = 0;
     string generatedAddress = "00:AA:BB:";
-    for (ll x = 0; x < 16; x++)
-    {
-        for (ll y = 0; y < 16; y++)
-        {
-            for (ll z = 0; z < 16; z++)
-            {
-                for (ll w = 0; w < 16; w++)
-                {
+    for (ll x = 0; x < 16; x++) {
+        for (ll y = 0; y < 16; y++) {
+            for (ll z = 0; z < 16; z++) {
+                for (ll w = 0; w < 16; w++){
                     string full_add = generatingAddress(generatedAddress, x, y, z, w);
                     macaddrlist.push_back(full_add);
                 }
@@ -107,20 +103,20 @@ void DFS(ll curr_device, vector<bool> &vis)
     if (type == "device")
     {
         Device d = device_arr[Device_Identity[curr_device].second];
-        cout << "index in network:- " << d.index << "\n";
-        cout << "mac addr" << d.mac_addr << "\n";
+        cout << "Index in network:" << d.index << "\n";
+        cout << "Mac address: " << d.mac_addr << "\n";
     }
     else if (type == "switch")
     {
         Switch s = switch_arr[Device_Identity[curr_device].second];
-        cout << "index in network:- " << s.ports << "\n";
-        cout << "mac addr" << s.mac_addr << "\n";
+        cout << "Index in network: " << s.ports << "\n";
+        cout << "Mac address:" << s.mac_addr << "\n";
     }
     else if (type == "bridge")
     {
         Bridge b = bridge_arr[Device_Identity[curr_device].second];
-        cout << "index in network:- " << b.ports << "\n";
-        cout << "mac addr" << b.mac_addr << "\n";
+        cout << "Index in network:" << b.ports << "\n";
+        cout << "Mac address:" << b.mac_addr << "\n";
     }
 
     ll sz = adjConnectionsList[curr_device].size();
@@ -171,12 +167,12 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                 if (destPort != 0)
                 {
 
-                    cout << "Device Type : " << type << "\n";
-                    cout << "Global Index : " << s.ports << "\n";
-                    cout << "Mac address : " << s.mac_addr << "\n";
+                    cout << "Device Type: " << type << "\n";
+                    cout << "Global Index: " << s.ports << "\n";
+                    cout << "Mac address: " << s.mac_addr << "\n";
                     if (isAck)
                         cout << "isACK \n";
-                    cout << "Sending to : " << adjConnectionsList[present_instru][destPort - 1] << "\n\n";
+                    cout << "Sending to: " << adjConnectionsList[present_instru][destPort - 1] << "\n\n";
 
                     if (collision_occurance_prob() == 1)
                     {
@@ -184,12 +180,12 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                     }
                     else
                     {
-                        cout << "\n !!!!! COLLISION HAPPENED WHILE TRANSMISSION !!!!! \n";
+                        cout << "\nCollision happened while sending! \n";
                     }
                 }
                 else
                 {
-                    cout << "SWITCH IS BROADCASTING : \n\n";
+                    cout << "Switch Broadcasts \n";
                     for (ll i = 0; i < adjConnectionsList[present_instru].size(); i++)
                     {
                         if (!vis[adjConnectionsList[present_instru][i]])
@@ -199,14 +195,14 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                             cout << "Mac address : " << s.mac_addr << "\n";
                             if (isAck)
                                 cout << "isACK \n";
-                            cout << "Sending to : " << adjConnectionsList[present_instru][i] << "\n\n";
+                            cout << "Sending to: " << adjConnectionsList[present_instru][i] << "\n\n";
                             if (collision_occurance_prob() == 1)
                             {
                                 transmit_data(adjConnectionsList[present_instru][i], vis, present_instru, senders_mac, destination_mac, isAck, isAckRecieved);
                             }
                             else
                             {
-                                cout << "\n !!!!! COLLISION HAPPENED WHILE TRANSMISSION !!!!! \n";
+                                cout << "\nCollision happened while sending! \n";
                             }
                         }
                     }
@@ -222,19 +218,19 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                 destPort = b.mp[destination_mac];
                 if (destPort != 0)
                 {
-                    cout << "Device Type : " << type << "\n";
-                    cout << "Global Index : " << b.ports << "\n";
-                    cout << "Mac address : " << b.mac_addr << "\n";
+                    cout << "Device Type: " << type << "\n";
+                    cout << "Global Index: " << b.ports << "\n";
+                    cout << "Mac address: " << b.mac_addr << "\n";
                     if (isAck)
                         cout << "isACK \n";
-                    cout << "Sending to : " << adjConnectionsList[present_instru][destPort - 1] << "\n\n";
+                    cout << "Sending to: " << adjConnectionsList[present_instru][destPort - 1] << "\n\n";
                     if (collision_occurance_prob() == 1)
                     {
                         transmit_data(adjConnectionsList[present_instru][destPort - 1], vis, present_instru, senders_mac, destination_mac, isAck, isAckRecieved);
                     }
                     else
                     {
-                        cout << "\n !!!!! COLLISION HAPPENED WHILE TRANSMISSION !!!!! \n";
+                        cout << "\nCollision happened while sending! \n";
                     }
                 }
                 else
@@ -243,19 +239,19 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                     {
                         if (!vis[adjConnectionsList[present_instru][i]])
                         {
-                            cout << "Device Type : " << type << "\n";
-                            cout << "Global Index : " << b.ports << "\n";
-                            cout << "Mac address : " << b.mac_addr << "\n";
+                            cout << "Device Type: " << type << "\n";
+                            cout << "Global Index: " << b.ports << "\n";
+                            cout << "Mac address: " << b.mac_addr << "\n";
                             if (isAck)
                                 cout << "isACK \n";
-                            cout << "Sending to : " << adjConnectionsList[present_instru][i] << "\n\n";
+                            cout << "Sending to: " << adjConnectionsList[present_instru][i] << "\n\n";
                             if (collision_occurance_prob() == 1)
                             {
                                 transmit_data(adjConnectionsList[present_instru][i], vis, present_instru, senders_mac, destination_mac, isAck, isAckRecieved);
                             }
                             else
                             {
-                                cout << " \n !!!!! COLLISION HAPPENED WHILE TRANSMISSION !!!!! \n";
+                                cout << "\nCollision happened while sending! \n";
                             }
                         }
                     }
@@ -269,9 +265,9 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
         d = device_arr[Device_Identity[present_instru].second];
         if (type == "device" && d.mac_addr == destination_mac && !isAck)
         {
-            cout << "Data packet recieved sucessfully sending back ACK";
+            cout << "Data packet recieved sucessfully sending back ACK! \n";
             vector<bool> vis(10001, false);
-            cout << "\nSENDING ACK FROM " << destination_mac << "  to  " << senders_mac << "\n\n";
+            cout << "\nSending ACK from" << destination_mac << "  to  " << senders_mac << "\n\n";
             transmit_data(present_instru, vis, -1, destination_mac, senders_mac, true, isAckRecieved);
             return;
         }
@@ -288,22 +284,22 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                 if (type == "hub")
                 {
                     h = hub_arr[Device_Identity[present_instru].second];
-                    cout << "Device Type : " << type << "\n";
-                    cout << "Global Index : " << h.ports << "\n";
-                    cout << "Mac address : " << h.mac_addr << "\n";
+                    cout << "Device Type: " << type << "\n";
+                    cout << "Global Index: " << h.ports << "\n";
+                    cout << "Mac address: " << h.mac_addr << "\n";
                     if (isAck)
                         cout << "isACK \n";
-                    cout << "Sending to : " << adjConnectionsList[present_instru][i] << "\n\n";
+                    cout << "Sending to: " << adjConnectionsList[present_instru][i] << "\n\n";
                 }
                 if (type == "device")
                 {
                     d = device_arr[Device_Identity[present_instru].second];
-                    cout << "Device Type : " << type << "\n";
-                    cout << "Global Index : " << d.index << "\n";
-                    cout << "Mac address : " << d.mac_addr << "\n";
+                    cout << "Device Type: " << type << "\n";
+                    cout << "Global Index: " << d.index << "\n";
+                    cout << "Mac address: " << d.mac_addr << "\n";
                     if (isAck)
                         cout << "isACK \n";
-                    cout << "Sending to : " << adjConnectionsList[present_instru][i] << "\n\n";
+                    cout << "Sending to: " << adjConnectionsList[present_instru][i] << "\n\n";
 
                     if (d.mac_addr == destination_mac && !isAck)
                     {
@@ -316,14 +312,14 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                         }
                         else
                         {
-                            cout << "\n !!!!! COLLISION HAPPENED WHILE TRANSMISSION !!!!! \n";
+                            cout << "\nCollision happened while sending! \n";
                         }
                         return;
                     }
                     else if (d.mac_addr == destination_mac)
                     {
                         isAckRecieved = true;
-                        cout << "ACK recieved sucessfully";
+                        cout << "ACK recieved sucessfully! \n\n";
                     }
                 }
                 if (collision_occurance_prob() == 1)
@@ -332,7 +328,7 @@ void transmit_data(ll present_instru, vector<bool> &vis, ll ind_prev, string sen
                 }
                 else
                 {
-                    cout << "\n !!!!! COLLISION HAPPENED WHILE TRANSMISSION !!!!! \n";
+                    cout << "\nCollision happened while sending! \n";
                 }
             }
         }
