@@ -427,4 +427,290 @@ void castNetwork()
                 {
                     vector<bool> vis(10001, false);
                     cout << "\nTranferring packet from" << curr_send.mac_addr << "  to  " << curr_rec.mac_addr << "\n\n";
-                    transmit_data(sender, vis, -1, curr_send.
+                    transmit_data(sender, vis, -1, curr_send.mac_addr, curr_rec.mac_addr, false, ackflag);
+                    if (!ackflag)
+                        cout << "\nAcknowledgment has not received! \n";
+                }
+
+                cout << "Switch Table contents " << endl;
+                for (ll i = 0; i < switch_arr.size(); i++)
+                {
+                    Switch s = switch_arr[i];
+                    cout << "Switch's global address: " << s.ports << "\n";
+                    cout << "Switch's mac address: " << s.mac_addr << "\n";
+
+                    for (auto it : s.mp)
+                    {
+                        cout << it.first << " " << it.second << "\n";
+                    }
+                    cout << "\n";
+                }
+
+                cout << "Bridge Table contents: " << endl;
+
+                for (ll i = 0; i < bridge_arr.size(); i++)
+                {
+                    Bridge b = bridge_arr[i];
+                    cout << "Bridge's global address : " << b.ports << "\n";
+                    cout << "Bridge's mac address : " << b.mac_addr << "\n";
+
+                    for (auto it : b.mp)
+                    {
+                        cout << it.first << " " << it.second << "\n";
+                    }
+
+                    cout << "\n";
+                }
+            }
+        }
+    }
+    else
+    {
+        queue<pair<string, ll>> reservation_frame[device_arr.size() + 1];
+        ll q;
+        cout << "Enter number of queries :\n";
+        cin >> q;
+
+        cout << "Enter sender, receiver and number of packets :\n";
+        while (q--)
+        {
+            ll sender, rec, num_packets;
+            cin >> sender >> rec >> num_packets;
+
+            ll a_device_index = Device_Identity[sender].second;
+            ll b_device_index = Device_Identity[rec].second;
+
+            Device curr_sender = device_arr[a_device_index];
+            Device curr_rec = device_arr[b_device_index];
+
+            reservation_frame[a_device_index].push(make_pair(curr_rec.mac_addr, num_packets));
+        }
+
+        bool remaining = true;
+        while (remaining)
+        {
+            bool sent = false;
+            for (ll i = 0; i < device_arr.size(); i++)
+            {
+                if (reservation_frame[i].size() > 0)
+                {
+
+                    Device sender = device_arr[i];
+
+                    bool ackflag = false;
+
+                    while (!ackflag)
+                    {
+                        vector<bool> vis(1001, 0);
+                        cout << "\nTransferring data from " << sender.mac_addr << "  to  " << reservation_frame[i].front().first << "\n\n";
+                        transmit_data(sender.index, vis, -1, sender.mac_addr, reservation_frame[i].front().first, false, ackflag);
+                        if (!ackflag)
+                            cout << "\nAcknowledgment has not received! \n";
+                    }
+                    sent = true;
+                    reservation_frame[i].front().second--;
+                    if (reservation_frame[i].front().second == 0)
+                    {
+                        reservation_frame[i].pop();
+                    }
+
+                    cout << "Switch Table contents " << endl;
+                    for (ll i = 0; i < switch_arr.size(); i++)
+                    {
+                        Switch s = switch_arr[i];
+                        cout << "Switch's global address : " << s.ports << "\n";
+                        cout << "Switch's mac address : " << s.mac_addr << "\n";
+
+                        for (auto it : s.mp)
+                        {
+                            cout << it.first << " " << it.second << "\n";
+                        }
+                        cout << "\n";
+                    }
+
+                    cout << "Bridge Table contents " << endl;
+
+                    for (ll i = 0; i < bridge_arr.size(); i++)
+                    {
+                        Bridge b = bridge_arr[i];
+                        cout << "Bridge's global address : " << b.ports << "\n";
+                        cout << "Bridge's mac address : " << b.mac_addr << "\n";
+
+                        for (auto it : b.mp)
+                        {
+                            cout << it.first << " " << it.second << "\n";
+                        }
+
+                        cout << "\n";
+                    }
+                }
+            }
+            remaining = sent;
+        }
+    }
+}
+
+map<pair<ll, ll>, ll> edge_Weight;
+
+void count_impact_zone(ll present_instru, ll prev_instru, vector<ll> &vis, ll &count)
+{
+    if (!vis[present_instru])
+    {
+        vis[present_instru] = true;
+
+        if (prev_instru != -1)
+        {
+            edge_Weight[(make_pair(present_instru, prev_instru))] = count;
+            edge_Weight[make_pair(prev_instru, present_instru)] = count;
+        }
+
+        for (ll i = 0; i < adjConnectionsList[present_instru].size(); i++)
+        {
+            if (!vis[adjConnectionsList[present_instru][i]])
+            {
+
+                if ((Device_Identity[present_instru].first == "switch" || Device_Identity[present_instru].first == "bridge") && Device_Identity[adjConnectionsList[present_instru][i]].first == "device")
+                {
+                    count++;
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+
+                if (Device_Identity[present_instru].first == "device" && (Device_Identity[adjConnectionsList[present_instru][i]].first == "switch" || Device_Identity[adjConnectionsList[present_instru][i]].first == "bridge"))
+                {
+                    count++;
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+
+                if ((Device_Identity[present_instru].first == "switch" || Device_Identity[present_instru].first == "bridge") && (Device_Identity[adjConnectionsList[present_instru][i]].first == "switch" || Device_Identity[adjConnectionsList[present_instru][i]].first == "bridge"))
+                {
+                    count++;
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+
+                if ((Device_Identity[present_instru].first == "switch" || Device_Identity[present_instru].first == "bridge") && Device_Identity[adjConnectionsList[present_instru][i]].first == "hub")
+                {
+                    count++;
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+
+                if (Device_Identity[present_instru].first == "hub" && (Device_Identity[adjConnectionsList[present_instru][i]].first == "switch" || Device_Identity[adjConnectionsList[present_instru][i]].first == "bridge"))
+                {
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+
+                if (Device_Identity[present_instru].first == "hub" && Device_Identity[adjConnectionsList[present_instru][i]].first == "device")
+                {
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+
+                if (Device_Identity[present_instru].first == "device" && Device_Identity[adjConnectionsList[present_instru][i]].first == "hub")
+                {
+                    count_impact_zone(adjConnectionsList[present_instru][i], present_instru, vis, count);
+                }
+            }
+        }
+    }
+}
+
+void impact_zone()
+{
+    int N = 1001;
+    vector<ll> vis(N, 0);
+
+    ll count = 1;
+    count_impact_zone(1, -1, vis, count);
+
+    unordered_set<ll> result;
+
+    for (auto it : edge_Weight)
+    {
+        result.insert(it.second);
+    }
+
+    cout << "Number of Collisions: -" << result.size() << "\n";
+    cout <<"Number of BroadCast Domains : " << 1 << " \n";
+}
+
+int main()
+{
+    settingMacAddress();
+    initialization();
+    castNetwork();
+    impact_zone();
+    return 0;
+}
+
+/*
+ TEST CASE 1 :
+ 10 9
+ 1 device
+ 2 switch
+ 10 device
+ 3 device
+ 4 device
+ 5 device
+ 6 device
+ 7 device
+ 8 bridge
+ 9 switch
+ 1 2
+ 2 7
+ 2 10
+ 2 8
+ 8 9
+ 3 9
+ 4 9
+ 5 9
+ 6 9
+ 0
+ 4
+ 1 10 3
+ 10 1 1
+ 7 4 1
+ 5 7 2
+
+ TEST CASE 2:
+ 20 19
+ 1 device
+ 2 device
+ 3 device
+ 4 switch
+ 5 switch
+ 6 hub
+ 7 device
+ 8 device
+ 9 device
+ 10 hub
+ 11 switch
+ 12 device
+ 13 device
+ 14 device
+ 15 hub
+ 16 switch
+ 17 hub
+ 18 device
+ 19 device
+ 20 device
+ 1 4
+ 3 4
+ 2 4
+ 4 5
+ 6 5
+ 6 7
+ 6 8
+ 6 9
+ 5 15
+ 15 16
+ 16 17
+ 17 18
+ 17 19
+ 17 20
+ 5 10
+ 10 11
+ 11 12
+ 11 13
+ 11 14
+ 0
+ 1
+ 12 1 4
+*/
