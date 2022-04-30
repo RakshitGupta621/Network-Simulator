@@ -632,7 +632,7 @@ void impact_zone()
     }
 
     cout << "Number of Collisions: -" << result.size() << "\n";
-    cout << "Number of BroadCast Domains : " << 1 << " \n";
+    cout <<"Number of BroadCast Domains : " << 1 << " \n";
 }
 
 int main()
@@ -643,3 +643,78 @@ int main()
     impact_zone();
     return 0;
 }
+
+/*
+ TEST CASE 1 :
+ 10 9
+ 1 device
+ 2 switch
+ 10 device
+ 3 device
+ 4 device
+ 5 device
+ 6 device
+ 7 device
+ 8 bridge
+ 9 switch
+ 1 2
+ 2 7
+ 2 10
+ 2 8
+ 8 9
+ 3 9
+ 4 9
+ 5 9
+ 6 9
+ 0
+ 4
+ 1 10 3
+ 10 1 1
+ 7 4 1
+ 5 7 2
+
+ TEST CASE 2:
+ 20 19
+ 1 device
+ 2 device
+ 3 device
+ 4 switch
+ 5 switch
+ 6 hub
+ 7 device
+ 8 device
+ 9 device
+ 10 hub
+ 11 switch
+ 12 device
+ 13 device
+ 14 device
+ 15 hub
+ 16 switch
+ 17 hub
+ 18 device
+ 19 device
+ 20 device
+ 1 4
+ 3 4
+ 2 4
+ 4 5
+ 6 5
+ 6 7
+ 6 8
+ 6 9
+ 5 15
+ 15 16
+ 16 17
+ 17 18
+ 17 19
+ 17 20
+ 5 10
+ 10 11
+ 11 12
+ 11 13
+ 11 14
+ 0
+ 1
+ 12 1 4
+*/
