@@ -2,6 +2,20 @@
 using namespace std;
 #define ll long long
 
+struct custom_hash {
+    static uint64_t splitmix64(uint64_t x) {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
+    size_t operator()(uint64_t x) const {
+        static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + FIXED_RANDOM);    
+    }
+};
+
+
 class Device
 {
 public:
@@ -32,6 +46,24 @@ public:
     string mac_addr;
 };
 
+class Router{
+  public: 
+    ll global_index;
+    ll no_of_interfaces;
+    vector< pair<pair<string,string>,string> > IPtoMAC;
+};
+
+class Host{
+  public:
+    ll global_index;
+    string mac;
+    string ipv4;
+    string subnet;
+    string nid;
+    string gateway_mac;
+    unordered_map<string,string> arp_table;
+};
+
 vector<string> macaddrlist;
 ll mac_index;
 unordered_map<ll, pair<string, ll>> Device_Identity;
@@ -40,10 +72,16 @@ vector<Hub> hub_arr;
 vector<Device> device_arr;
 vector<Switch> switch_arr;
 vector<Bridge> bridge_arr;
+vector<Router> router_arr;
+vector<Host> host_arr;
+
+
 ll device_index;
 ll hub_index;
 ll bridge_index;
 ll switch_index;
+ll router_index;
+ll host_index;
 
 string convertllToHex(ll x)
 {
@@ -71,12 +109,15 @@ string generatingAddress(string add, ll i, ll j, ll k, ll l)
 
 void settingMacAddress()
 {
-    ll numFreq = 0;
     string generatedAddress = "00:AA:BB:";
-    for (ll x = 0; x < 16; x++) {
-        for (ll y = 0; y < 16; y++) {
-            for (ll z = 0; z < 16; z++) {
-                for (ll w = 0; w < 16; w++){
+    for (ll x = 0; x < 16; x++)
+    {
+        for (ll y = 0; y < 16; y++)
+        {
+            for (ll z = 0; z < 16; z++)
+            {
+                for (ll w = 0; w < 16; w++)
+                {
                     string full_add = generatingAddress(generatedAddress, x, y, z, w);
                     macaddrlist.push_back(full_add);
                 }
@@ -400,6 +441,63 @@ void initialization()
     DFS(1, vis);
 }
 
+
+void arp_request(ll current_device, vector<bool> & visited,string ip_dest,string &mac_dest) {
+  if(!visited[current_device]) {
+        visited[current_device] = true;
+        string type = Device_Identity[current_device].first;
+        if(type == "Host") {
+          int h_index = Device_Identity[current_device].second;
+          Host h = host_arr[h_index];
+          if(h.ipv4 == ip_dest) {
+            vector<bool> vis(visited.size(),false);
+            cout<<"Host found !!!!!!";
+            mac_dest = h.mac;
+            return;
+          }
+        }
+
+
+        if(type != "Router") {
+          for(ll i = 0;i < adjConnectionsList[current_device].size(); i++) {
+              if(!visited[adjConnectionsList[current_device][i]]) {
+                arp_request(adjConnectionsList[current_device][i],visited,ip_dest,mac_dest);
+              }
+          }
+        }
+
+
+        if(type == "Router") {
+          Router r = router_arr[Device_Identity[current_device].second];
+          for(ll i = 0;i < r.IPtoMAC.size();i++) {
+            if(r.IPtoMAC[i].first.first == ip_dest) {
+              vector<bool> vis(visited.size(),false);
+              cout<<"Gateway Found !!!!";
+              mac_dest =  r.IPtoMAC[i].second;
+              return;
+            }
+          }
+        }
+        return;
+    }
+}
+
+string search_mac(ll current_device, string ip_Address) {
+  unordered_map<string,string> arp_table = host_arr[Device_Identity[current_device].second].arp_table;
+  string mac_dest = "";
+  for(auto it = arp_table.begin(); it != arp_table.end(); it++) {
+    if(it->first == ip_Address) {
+      cout<<"found in arp table";
+      return it->second;
+    }
+  }
+  vector<bool> visited(1000,false);
+  arp_request(current_device, visited ,ip_Address, mac_dest);
+  return mac_dest;
+}
+
+
+
 void castNetwork()
 {
     cout << "Enter 0 for reservation frame else 1: \n";
@@ -628,7 +726,7 @@ void impact_zone()
     }
 
     cout << "Number of Collisions: -" << result.size() << "\n";
-    cout <<"Number of BroadCast Domains : " << 1 << " \n";
+    cout << "Number of BroadCast Domains : " << 1 << " \n";
 }
 
 int main()
@@ -637,6 +735,7 @@ int main()
     initialization();
     castNetwork();
     impact_zone();
+    boot();
     return 0;
 }
 
