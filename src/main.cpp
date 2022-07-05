@@ -648,6 +648,167 @@ void castNetwork()
     }
 }
 
+void boot()
+{
+    ll n = 0;
+
+    cout << "////// -> To Add a device enter 1. (Format : devicetype index) \n";
+    cout << "////// -> To Add a connection enter 2. \n";
+    cout << "///// -> To Run a query enter 3. \n";
+    cout << "//// To exit enter  4 \n";
+    bool runner = true;
+
+    while (runner)
+    {
+        ll category;
+        cin >> category;
+        // Entering a device
+        if (category == 1)
+        {
+            cout << "Enter device and its global index : ";
+            string device;
+            ll index;
+            cin >> device;
+            cin >> index;
+            n = max(n, index);
+            cout << "\n";
+            if (device == "Host")
+            {
+                Host h;
+                h.global_index = index;
+                h.mac = macaddrlist[mac_index];
+                Device_Identity[index] = make_pair(device, host_index);
+                mac_index++;
+                cout << "IP Address : ";
+                cin >> h.ipv4;
+                cout << "\n";
+                cout << "Subnet Mask : ";
+                cin >> h.subnet;
+                cout << "\n";
+                host_arr.push_back(h);
+                host_index++;
+            }
+
+            if (device == "Switch")
+            {
+                Switch s;
+                s.ports = index;
+                s.mac_addr = macaddrlist[mac_index];
+                mac_index++;
+                switch_arr.push_back(s);
+                Device_Identity[index] = make_pair(device, switch_index);
+                switch_index++;
+            }
+
+            if (device == "Hub")
+            {
+                Hub h;
+                h.ports = index;
+                h.mac_addr = macaddrlist[mac_index];
+                mac_index++;
+                Device_Identity[index] = make_pair(device, hub_index);
+                hub_index++;
+                hub_arr.push_back(h);
+            }
+
+            if (device == "Router")
+            {
+                cout << "Enter the maximum no of iterfaces need : ";
+                ll no;
+                cin >> no;
+                cout << "\n";
+                Router r;
+                r.global_index = index;
+                ll curr = 0;
+                while (no > 0)
+                {
+                    cout << "ip for interface " << curr << " : ";
+                    ll ip;
+                    cin >> ip;
+                    cout << "Subnet for interface " << curr << " : ";
+                    ll subnet;
+                    cin >> subnet;
+                    cout << "\n";
+                    r.IPtoMAC.push_back(make_pair(make_pair(ip, subnet), macaddrlist[mac_index]));
+                    mac_index++;
+                    curr++;
+                    no--;
+                }
+                Device_Identity[index] = make_pair(device, router_index);
+                router_arr.push_back(r);
+                router_index++;
+            }
+        }
+
+        if (category == 2)
+        {
+            cout << "Enter the connection (u,v) : ";
+            cin >> (u);
+            cin >> (v);
+            cout << "\n";
+            addEdge(u, v);
+        }
+
+        if (category == 3)
+        {
+            cout << "Enter source's global_index : ";
+            ll ind;
+            cin >> ind;
+            cout << "Enter source's IP : ";
+            string ips;
+            cin >> ips;
+            cout << "Enter source's subnet : ";
+            string subnets;
+            cin >> subnets;
+            cout << "\n";
+
+            cout << "Enter destination's IP : ";
+            string ipd;
+            cin >> ipd;
+            cout << "Enter destination's subnet :";
+            string subnetd;
+            cin >> subnetd;
+
+            if (find_nid(ips, subnets) == find_nid(ipd, subnetd))
+            {
+                cout << "Source and destination are in same subnet \n";
+                string dest_mac = search_mac(ind, ipd);
+                Host &sender = host_arr[Device_Identity[ind].s];
+                sender.arp_table[ipd] = dest_mac;
+                bool isAckRecieved = false;
+                vector<bool> visited(10001, false);
+                cout << "\nSENDING PACKET FROM " << sender.mac << "  to  " << dest_mac << "\n\n";
+                transmit_data(ind, visited, -1, sender.mac, dest_mac, false, isAckRecieved);
+                cout << "Is ack recieved : " << isAckRecieved << "\n";
+
+                for (ll i = 0; i < switch_arr.size(); i++)
+                {
+                    Switch s = switch_arr[i];
+                    cout << "Global Index " << s.ports << " \n ";
+                    cout << "SWITCHING TABLE";
+                    for (auto it = s.mp.begin(); it != s.mp.end(); it++)
+                    {
+                        cout << it->first << " " << it->second << "\n";
+                    }
+                    cout << "\n\n";
+                }
+            }
+            else
+            {
+                cout << "Source and destination are in different subnet";
+            }
+        }
+
+        if (category == 4)
+        {
+            runner = false;
+        }
+    }
+
+    vector<bool> visited(n + 1, false);
+    DFS(1, visited);
+}
+
 map<pair<ll, ll>, ll> edge_Weight;
 
 void count_impact_zone(ll present_instru, ll prev_instru, vector<ll> &vis, ll &count)
