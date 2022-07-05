@@ -126,6 +126,93 @@ void settingMacAddress()
     }
 }
 
+vector<int> ip_bits(string ip) {
+
+  vector<int> bit(32,0);
+
+  ll i = 31;
+
+  ll start = 0;
+  string res = "";
+  while(start < ip.length()) {
+    if(ip[start] == '.') {
+      ll val = stoi(res);
+      vector<int> bitset2(8,0);
+      for(int i=0;i<8;i++){
+        if(val & (1<<i))
+          bitset2[i]=1;
+      }
+      ll s = 7;
+      while(s >= 0) {
+        bit[i] = bitset2[s];
+        i--;
+        s--;
+      }
+      res = "";
+    } else {
+      res.push_back(ip[start]);
+    }
+    start++;
+  }
+  ll val = stoi(res);
+  vector<int> bitset2(8,0);
+  for(int i=0;i<8;i++){
+    if(val & (1<<i))
+      bitset2[i]=1;
+  }
+  ll s = 7;
+  while(s >= 0) {
+    bit[i] = bitset2[s];
+    i--;
+    s--;
+  }
+
+  return bit;
+}
+
+
+string NID (string ip,string subnet) {
+
+
+vector<int> bitsip(ip_bits(ip));
+vector<int> subnet(ip_bits(subnet));
+  vector<int> nid(32,0);
+
+  for(int i=0;i<32;i++)
+    nid[i]=bitsip[i] & subnet[i];
+   string res;
+
+  ll ind = 7;
+
+  vector<int>  nidbits(8,0);
+
+  for(ll i = 31;i >= 0; i--) {
+    if(ind == -1) {
+      ind = 7;
+      ll val =0;
+      for(int i=0;i<8;i++){
+        if(nidbits[i])
+        val = val | (1<<i);
+      }
+
+      nids += to_string(val);
+      nids.pb('.');
+      nidbits.resize(8,0);
+    }
+    nidbits[ind] = nid[i];
+    ind--;
+  }
+  ll val = 0;
+  for(int i=0;i<8;i++){
+    if(nidbits[i])
+      val |=(1<<i);
+  }
+
+  res += to_string(val);
+  return resize;
+}
+
+
 vector<ll> adjConnectionsList[1001];
 
 void addEdge(ll u, ll v)
