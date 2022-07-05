@@ -735,21 +735,16 @@ void castNetwork()
     }
 }
 
-void boot()
+void setUpNetwork()
 {
     ll n = 0;
 
-    cout << "////// -> To Add a device enter 1. (Format : devicetype index) \n";
-    cout << "////// -> To Add a connection enter 2. \n";
-    cout << "///// -> To Run a query enter 3. \n";
-    cout << "//// To exit enter  4 \n";
     bool runner = true;
 
     while (runner)
     {
         ll category;
         cin >> category;
-        // Entering a device
         if (category == 1)
         {
             cout << "Enter device and its global index : ";
@@ -983,7 +978,7 @@ int main()
     initialization();
     castNetwork();
     impact_zone();
-    boot();
+    setUpNetwork();
     return 0;
 }
 
